@@ -8,6 +8,7 @@ async function bootstrap() {
     .setTitle('E-Learning API')
     .setDescription('API documentation for the E-Learning platform')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

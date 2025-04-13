@@ -1,26 +1,50 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ResponseDto } from './dto/responst.dto';
+import { toResponse } from 'src/helper/response.helper';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('register')
+  @ApiOperation({ summary: 'Registrasi User' })
+  @ApiResponse({
+    status: 200,
+    description: 'User Berhasil diambil',
+    type: ResponseDto,
+  })
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async register(@Body() createUserDto: CreateUserDto) {
+    try {
+      const user = await this.usersService.create(createUserDto);
+      return toResponse(user, 'User berhasil dibuat', true, true);
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get()
   @ApiOperation({ summary: 'Membuat User' })
   @ApiResponse({
     status: 200,
-    description: 'Data berhasil diambil',
+    description: 'User Berhasil diambil',
     type: ResponseDto,
   })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto).then((result) => {
-      const response = new ResponseDto();
-      response.data = result;
-      return response;
-    });
+  async getAll() {
+    const data = await this.usersService.findAll();
+    return toResponse(data, 'User Berhasil diambil', true, true);
   }
 }

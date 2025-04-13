@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '../entities/user.entity';
+import { IsEmail, IsEnum, IsNotEmpty, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -7,6 +8,7 @@ export class CreateUserDto {
     description: 'Nama lengkap pengguna',
     example: 'John Doe',
   })
+  @IsNotEmpty()
   nama: string;
 
   @ApiProperty({
@@ -14,6 +16,7 @@ export class CreateUserDto {
     description: 'Email pengguna',
     example: 'yourmail@gmail.com',
   })
+  @IsEmail()
   email: string;
 
   @ApiProperty({
@@ -21,6 +24,7 @@ export class CreateUserDto {
     description: 'Password pengguna',
     example: 'yourpassword',
   })
+  @MinLength(6, { message: 'Password minimal 6 karakter' })
   password: string;
 
   @ApiProperty({
@@ -29,19 +33,14 @@ export class CreateUserDto {
     enum: UserRole,
     example: 'mahasiswa',
   })
+  @IsEnum(UserRole, { message: 'Role harus "guru" atau "siswa"' })
   role: UserRole;
 
   @ApiProperty({
     type: String,
-    description: 'ID Program Studi',
-    example: 'program_studi_id',
+    description: 'Password pengguna',
+    example: 'yourpassword',
   })
-  idProgramStudi: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'ID Semester',
-    example: 'semester_id',
-  })
-  idSemester: string;
+  @IsNotEmpty({ message: 'Konfirmasi password harus diisi' })
+  confirmPassword: string;
 }

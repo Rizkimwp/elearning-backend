@@ -1,68 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserRole } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { MahasiswaService } from 'src/mahasiswa/mahasiswa.service';
-import { plainToInstance } from 'class-transformer';
-import { ProgramStudiService } from 'src/program_studi/program_studi.service';
-import { SemesterService } from 'src/semester/semester.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-
-    private readonly semester: SemesterService,
-    private readonly programStudi: ProgramStudiService,
-    private readonly mahasiswaService: MahasiswaService,
   ) {}
 
   async create(data: CreateUserDto): Promise<User> {
     try {
-      const user = this.userRepository.create(data);
+      const { email, role, nama, password, confirmPassword } = data;
 
-      const idProgramStudi = await this.programStudi.findOne(
-        data.idProgramStudi,
+      // Validasi konfirmasi password
+      if (password !== confirmPassword) {
+        throw new BadRequestException(
+          'Password dan konfirmasi password tidak sama',
+        );
+      }
+
+      // Cek apakah email sudah digunakan
+      const existing = await this.userRepository.findOne({ where: { email } });
+      if (existing) {
+        throw new BadRequestException('Email sudah terdaftar');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const user = this.userRepository.create({
+        email,
+        nama,
+        role,
+        password: hashedPassword,
+      });
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        error.message || 'Gagal membuat user',
       );
-      const idSemester = await this.semester.findOne(data.idSemester);
+    }
+  }
 
-      if (!idSemester) {
-        return plainToInstance(User, {
-          success: false,
-          message: 'Semester not found',
-        });
+  async findAll(): Promise<User[]> {
+    try {
+      const user = await this.userRepository.find({
+        select: ['id', 'nama', 'email', 'role'],
+      });
+      if (!user) {
+        throw new Error('User not found');
       }
-
-      if (!idProgramStudi) {
-        return plainToInstance(User, {
-          success: false,
-          message: 'Program Studi not found',
-        });
-      }
-
-      await this.userRepository.save(user);
-
-      if (data.role === UserRole.MAHASISWA) {
-        console.log('Creating Mahasiswa record');
-        try {
-          await this.mahasiswaService.create({
-            idProgramStudi: data.idProgramStudi,
-            idSemester: data.idSemester,
-            idUser: user.id,
-          });
-        } catch (error) {
-          await this.userRepository.delete(user.id); // Rollback user creation
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          throw new Error(`Failed to create Mahasiswa: ${error.message}`);
-        }
-      }
-
-      return plainToInstance(User, user);
+      return user;
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      throw new Error(`Failed to create user: ${error.message}`);
+      throw new Error(`Failed to fetch users: ${error.message}`);
+    }
+  }
+
+  async findOne(email: string): Promise<User> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email },
+        relations: ['mahasiswa'],
+      });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return user;
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new Error(`Failed to fetch user: ${error.message}`);
     }
   }
 }

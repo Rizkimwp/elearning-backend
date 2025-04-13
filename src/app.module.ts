@@ -2,17 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { ProgramStudiModule } from './program_studi/program_studi.module';
-import { SemesterModule } from './semester/semester.module';
-import { MahasiswaModule } from './mahasiswa/mahasiswa.module';
-import { DosenModule } from './dosen/dosen.module';
-import { ModulModule } from './modul/modul.module';
-import { MediaModulModule } from './media_modul/media_modul.module';
-import { KuisModule } from './kuis/kuis.module';
-import { KuisPertanyaanModule } from './kuis_pertanyaan/kuis_pertanyaan.module';
-import { KuisJawabanModule } from './kuis_jawaban/kuis_jawaban.module';
-import { DiskusiModule } from './diskusi/diskusi.module';
-import { KomentarModule } from './komentar/komentar.module';
+import { AuthModule } from './auth/auth.module';
+import { MeetingModule } from './meeting/meeting.module';
+import { QuizModule } from './quiz/quiz.module';
+import { QuizquestionModule } from './quizquestion/quizquestion.module';
+import { ModuleModule } from './module/module.module';
+import { VideomaterialModule } from './videomaterial/videomaterial.module';
+import { DiscussionModule } from './discussion/discussion.module';
+import { DiscussionreplyModule } from './discussionreply/discussionreply.module';
+import { AssignmentModule } from './assignment/assignment.module';
+import { MeetingprogressModule } from './meetingprogress/meetingprogress.module';
 
 @Module({
   imports: [
@@ -27,18 +26,17 @@ import { KomentarModule } from './komentar/komentar.module';
       autoLoadEntities: true,
       synchronize: true, // Jangan aktifkan di production!
     }),
+    AuthModule,
+    AssignmentModule,
     UsersModule,
-    ProgramStudiModule,
-    SemesterModule,
-    MahasiswaModule,
-    DosenModule,
-    ModulModule,
-    MediaModulModule,
-    KuisModule,
-    KuisPertanyaanModule,
-    KuisJawabanModule,
-    DiskusiModule,
-    KomentarModule,
+    MeetingModule,
+    QuizModule,
+    QuizquestionModule,
+    ModuleModule,
+    VideomaterialModule,
+    DiscussionModule,
+    DiscussionreplyModule,
+    MeetingprogressModule,
   ],
 })
 export class AppModule {}

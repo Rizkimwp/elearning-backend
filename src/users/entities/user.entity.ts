@@ -1,21 +1,14 @@
-import { Dosen } from 'src/dosen/entities/dosen.entity';
-import { Komentar } from 'src/komentar/entities/komentar.entity';
-import { KuisJawaban } from 'src/kuis_jawaban/entities/kuis_jawaban.entity';
-import { Mahasiswa } from 'src/mahasiswa/entities/mahasiswa.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 export enum UserRole {
-  MAHASISWA = 'mahasiswa',
+  MAHASISWA = 'guru',
   DOSEN = 'dosen',
-  ADMIN = 'admin',
 }
 
 @Entity('users')
@@ -40,16 +33,4 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
-
-  @OneToOne(() => Dosen, (d) => d.user)
-  dosen: Dosen;
-
-  @OneToOne(() => Mahasiswa, (m) => m.user)
-  mahasiswa: Mahasiswa;
-
-  @OneToMany(() => Komentar, (komentar) => komentar.user)
-  komentar: Komentar[];
-
-  @OneToMany(() => KuisJawaban, (jawaban) => jawaban.user)
-  kuisJawaban: KuisJawaban[];
 }
