@@ -7,8 +7,8 @@ import {
 } from 'typeorm';
 
 export enum UserRole {
-  MAHASISWA = 'guru',
-  DOSEN = 'dosen',
+  GURU = 'guru',
+  SISWA = 'siswa',
 }
 
 @Entity('users')

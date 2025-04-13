@@ -35,12 +35,4 @@ export class CreateUserDto {
   })
   @IsEnum(UserRole, { message: 'Role harus "guru" atau "siswa"' })
   role: UserRole;
-
-  @ApiProperty({
-    type: String,
-    description: 'Password pengguna',
-    example: 'yourpassword',
-  })
-  @IsNotEmpty({ message: 'Konfirmasi password harus diisi' })
-  confirmPassword: string;
 }

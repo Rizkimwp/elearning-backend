@@ -18,14 +18,7 @@ export class UsersService {
 
   async create(data: CreateUserDto): Promise<User> {
     try {
-      const { email, role, nama, password, confirmPassword } = data;
-
-      // Validasi konfirmasi password
-      if (password !== confirmPassword) {
-        throw new BadRequestException(
-          'Password dan konfirmasi password tidak sama',
-        );
-      }
+      const { email, role, nama, password } = data;
 
       // Cek apakah email sudah digunakan
       const existing = await this.userRepository.findOne({ where: { email } });
@@ -70,8 +63,8 @@ export class UsersService {
     try {
       const user = await this.userRepository.findOne({
         where: { email },
-        relations: ['mahasiswa'],
       });
+
       if (!user) {
         throw new Error('User not found');
       }

@@ -8,18 +8,34 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateUser({
-      email: loginDto.email,
-      password: loginDto.password,
-    });
-    console.log(user);
-    if (!user) {
-      throw new Error('Invalid credentials');
+    try {
+      const user = await this.authService.validateUser({
+        email: loginDto.email,
+        password: loginDto.password,
+      });
+
+      if (!user) {
+        return { status: 'error', message: 'Invalid email or password' };
+      }
+
+      const token = this.authService.login({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        nama: user.nama,
+      });
+      console.log(token.access_token);
+      return {
+        statusCode: 200,
+        status: 'success',
+        access_token: token.access_token, // Gantikan dengan token yang dihasilkan
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        message: error.message || 'Login failed',
+      };
     }
-    return this.authService.login({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
   }
 }
