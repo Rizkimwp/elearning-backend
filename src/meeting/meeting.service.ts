@@ -13,13 +13,13 @@ export class MeetingService {
     private readonly meetingRepository: Repository<Meeting>,
   ) {}
   async findAll(): Promise<Meeting[]> {
-    return this.meetingRepository.find({ relations: ['createdBy'] });
+    return this.meetingRepository.find({ relations: ['create_by'] });
   }
 
   async findOne(id: string): Promise<Meeting> {
     const meeting = await this.meetingRepository.findOne({
       where: { id },
-      relations: ['createdBy'],
+      relations: ['create_by'],
     });
     if (!meeting)
       throw new NotFoundException(`Meeting with ID ${id} not found`);
