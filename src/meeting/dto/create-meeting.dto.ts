@@ -14,4 +14,8 @@ export class CreateMeetingDto {
   @ApiProperty()
   @IsInt()
   order: number;
+
+  @ApiProperty()
+  @IsString()
+  create_by: string;
 }

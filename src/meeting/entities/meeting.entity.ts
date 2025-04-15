@@ -24,8 +24,8 @@ export class Meeting {
   order: number;
 
   @ManyToOne(() => User)
-  @JoinColumn()
-  createdBy: User; // hanya guru
+  @JoinColumn({ name: 'id_guru' }) // nama kolom di database
+  create_by: User; // nama properti di entity
 
   @CreateDateColumn()
   createdAt: Date;

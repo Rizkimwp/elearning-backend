@@ -26,13 +26,10 @@ export class MeetingService {
     return meeting;
   }
 
-  async create(
-    createMeetingDto: CreateMeetingDto,
-    user: User,
-  ): Promise<Meeting> {
+  async create(createMeetingDto: CreateMeetingDto): Promise<Meeting> {
     const meeting = this.meetingRepository.create({
       ...createMeetingDto,
-      createdBy: user,
+      create_by: { id: createMeetingDto.create_by } as User,
     });
     return this.meetingRepository.save(meeting);
   }

@@ -39,12 +39,9 @@ export class MeetingController {
   @Post()
   @ApiBody({ type: CreateMeetingDto })
   @ApiResponse({ status: 201, description: 'Meeting berhasil dibuat.' })
-  async create(
-    @Body() createMeetingDto: CreateMeetingDto,
-    @Request() req: User,
-  ) {
+  async create(@Body() createMeetingDto: CreateMeetingDto) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-    const data = await this.meetingService.create(createMeetingDto, req);
+    const data = await this.meetingService.create(createMeetingDto);
     return toResponse(data, 'Meeting berhasil dibuat', true, true);
   }
 
