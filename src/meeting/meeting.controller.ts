@@ -4,7 +4,6 @@ import {
   Get,
   Post,
   Body,
-  Request,
   Param,
   Delete,
   Put,
@@ -13,7 +12,6 @@ import { MeetingService } from './meeting.service';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
 import { UpdateMeetingDto } from './dto/update-meeting.dto';
 import { toResponse } from 'src/helper/response.helper';
-import { User } from 'src/users/entities/user.entity';
 
 @Controller('meeting')
 export class MeetingController {
