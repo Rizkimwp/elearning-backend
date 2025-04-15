@@ -1,3 +1,4 @@
+import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -32,4 +34,7 @@ export class Meeting {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Quiz, (quiz) => quiz.meeting)
+  quizzes: Quiz[];
 }

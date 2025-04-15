@@ -13,7 +13,9 @@ export class MeetingService {
     private readonly meetingRepository: Repository<Meeting>,
   ) {}
   async findAll(): Promise<Meeting[]> {
-    return this.meetingRepository.find({ relations: ['create_by'] });
+    return this.meetingRepository.find({
+      relations: ['create_by', 'quizzes', 'quizzes.questions'],
+    });
   }
 
   async findOne(id: string): Promise<Meeting> {
