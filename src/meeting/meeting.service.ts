@@ -11,6 +11,8 @@ export class MeetingService {
   constructor(
     @InjectRepository(Meeting)
     private readonly meetingRepository: Repository<Meeting>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
   async findAll(): Promise<Meeting[]> {
     return this.meetingRepository.find({
@@ -29,6 +31,11 @@ export class MeetingService {
   }
 
   async create(createMeetingDto: CreateMeetingDto): Promise<Meeting> {
+    const user = await this.userRepository.findOne({
+      where: { id: createMeetingDto.create_by },
+    });
+    if (!user) throw new NotFoundException('Guru tidak ditemukan');
+
     const meeting = this.meetingRepository.create({
       ...createMeetingDto,
       create_by: { id: createMeetingDto.create_by } as User,

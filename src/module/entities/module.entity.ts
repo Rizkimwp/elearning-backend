@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -26,7 +27,8 @@ export class Module {
   meeting: Meeting;
 
   @ManyToOne(() => User)
-  createdBy: User;
+  @JoinColumn({ name: 'id_guru' }) // nama kolom di database
+  create_by: User; // nama properti di entity
 
   @CreateDateColumn()
   createdAt: Date;

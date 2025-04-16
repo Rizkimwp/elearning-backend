@@ -12,9 +12,16 @@ import { DiscussionModule } from './discussion/discussion.module';
 import { DiscussionreplyModule } from './discussionreply/discussionreply.module';
 import { AssignmentModule } from './assignment/assignment.module';
 import { MeetingprogressModule } from './meetingprogress/meetingprogress.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      rootPath: join(__dirname, '..', 'public'), // Path ke folder yang mau dipublikasikan
+      serveRoot: '/uploads', // URL prefix → akses via /uploads/namafile.jpg
+    }),
     ConfigModule.forRoot(), // Load .env
     TypeOrmModule.forRoot({
       type: 'mysql',

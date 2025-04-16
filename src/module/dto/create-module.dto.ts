@@ -18,4 +18,8 @@ export class CreateModuleDto {
   @ApiProperty()
   @IsString()
   meetingId: string;
+
+  @ApiProperty()
+  @IsString()
+  create_by: string;
 }
