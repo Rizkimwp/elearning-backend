@@ -20,7 +20,7 @@ import { join } from 'path';
     ServeStaticModule.forRoot({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       rootPath: join(__dirname, '..', 'public'), // Path ke folder yang mau dipublikasikan
-      serveRoot: '/uploads', // URL prefix → akses via /uploads/namafile.jpg
+      serveRoot: '/', // URL prefix → akses via /uploads/namafile.jpg
     }),
     ConfigModule.forRoot(), // Load .env
     TypeOrmModule.forRoot({
