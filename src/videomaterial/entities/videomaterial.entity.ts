@@ -6,6 +6,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('video_material')
@@ -23,7 +24,8 @@ export class VideoMaterial {
   meeting: Meeting;
 
   @ManyToOne(() => User)
-  uploadedBy: User;
+  @JoinColumn({ name: 'id_guru' }) // nama kolom di database
+  create_by: User; // nama properti di entity
 
   @CreateDateColumn()
   createdAt: Date;

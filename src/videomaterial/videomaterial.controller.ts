@@ -1,19 +1,66 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { VideomaterialService } from './videomaterial.service';
 import { CreateVideomaterialDto } from './dto/create-videomaterial.dto';
-import { ApiBody, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiResponse,
+  ApiParam,
+  ApiConsumes,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { toResponse } from 'src/helper/response.helper';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('videomaterial')
 export class VideomaterialController {
   constructor(private readonly service: VideomaterialService) {}
 
+  @ApiOperation({ summary: 'Upload materi modul dengan file video' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Form data untuk upload file video materi',
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Judul Materi' },
+        meetingId: { type: 'string', example: 'uuid-meeting' },
+        uploadedById: { type: 'string', example: 'uuid-uploader' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['title', 'meetingId', 'uploadedById', 'file'],
+    },
+  })
   @Post()
-  @ApiBody({ type: CreateVideomaterialDto })
-  @ApiResponse({ status: 201, description: 'Video berhasil ditambahkan' })
-  async create(@Body() dto: CreateVideomaterialDto) {
-    const data = await this.service.create(dto);
-    return toResponse(data, 'Video berhasil ditambahkan', true, true);
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = `${Date.now()}-${file.originalname}`;
+          cb(null, uniqueName);
+        },
+      }),
+    }),
+  )
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: CreateVideomaterialDto,
+  ) {
+    const data = await this.service.create(dto, file);
+    return toResponse(data, 'Video Materi Berhasil Disimpan', true, true);
   }
 
   @Get()
