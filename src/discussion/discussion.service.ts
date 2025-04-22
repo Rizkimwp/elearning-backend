@@ -55,7 +55,7 @@ export class DiscussionService {
       order: {
         createdAt: 'ASC', // Order diskusi
         discussionReplies: {
-          createdAt: 'DESC', // Order balasan di dalam diskusi
+          createdAt: 'ASC', // Order balasan di dalam diskusi
         },
       },
     });
