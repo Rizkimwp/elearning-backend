@@ -39,23 +39,54 @@ export class DiscussionService {
       title: dto.title,
       content: dto.content,
       meeting,
-      createdBy: user,
+      create_by: user,
     });
 
     return this.discussionRepo.save(discussion);
   }
 
-  async findAll(): Promise<Discussion[]> {
-    return this.discussionRepo.find({
-      relations: ['meeting', 'createdBy'],
-      order: { createdAt: 'DESC' },
+  async findAll(): Promise<any[]> {
+    const diskusi = await this.discussionRepo.find({
+      relations: [
+        'meeting',
+        'discussionReplies',
+        'discussionReplies.create_by',
+      ],
+      order: {
+        createdAt: 'ASC', // Order diskusi
+        discussionReplies: {
+          createdAt: 'ASC', // Order balasan di dalam diskusi
+        },
+      },
     });
+
+    return diskusi.map((d) => ({
+      id: d.id,
+      title: d.title,
+      content: d.content,
+      createdAt: d.createdAt,
+      meeting: {
+        id: d.meeting?.id ?? '',
+        title: d.meeting?.title ?? '',
+        description: d.meeting?.description ?? '',
+      },
+      discussionReplies:
+        d.discussionReplies?.map((reply) => ({
+          id: reply.id,
+          message: reply.message,
+          createdAt: reply.createdAt,
+          create_by: {
+            id: reply.create_by?.id ?? '',
+            nama: reply.create_by?.nama ?? '',
+          },
+        })) ?? [],
+    }));
   }
 
   async findOne(id: string): Promise<Discussion> {
     const discussion = await this.discussionRepo.findOne({
       where: { id },
-      relations: ['meeting', 'createdBy'],
+      relations: ['meeting', 'create_by'],
     });
     if (!discussion) throw new NotFoundException('Diskusi tidak ditemukan');
     return discussion;

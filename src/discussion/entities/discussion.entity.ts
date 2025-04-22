@@ -1,3 +1,4 @@
+import { DiscussionReply } from 'src/discussionreply/entities/discussionreply.entity';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -6,6 +7,8 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('discussion')
@@ -23,8 +26,14 @@ export class Discussion {
   meeting: Meeting;
 
   @ManyToOne(() => User)
-  createdBy: User;
+  @JoinColumn({ name: 'id_guru' }) // nama kolom di database
+  create_by: User; // nama properti di entity
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @OneToMany(() => DiscussionReply, (reply) => reply.discussion, {
+    cascade: true,
+  })
+  discussionReplies: DiscussionReply[];
 }

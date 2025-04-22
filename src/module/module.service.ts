@@ -23,7 +23,7 @@ export class ModuleService {
   async findAll(): Promise<any[]> {
     const modules = await this.modulRepo.find({
       relations: ['meeting'],
-      order: { createdAt: 'DESC' },
+      order: { createdAt: 'ASC' },
     });
 
     return modules.map((modul) => ({

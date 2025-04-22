@@ -6,6 +6,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('discussion_reply')
@@ -16,11 +17,12 @@ export class DiscussionReply {
   @Column('text')
   message: string;
 
-  @ManyToOne(() => Discussion)
+  @ManyToOne(() => Discussion, (discussion) => discussion.discussionReplies)
   discussion: Discussion;
 
   @ManyToOne(() => User)
-  createdBy: User;
+  @JoinColumn({ name: 'id_user' }) // nama kolom di database
+  create_by: User; // nama properti di entity
 
   @CreateDateColumn()
   createdAt: Date;

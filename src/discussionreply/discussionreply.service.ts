@@ -1,8 +1,10 @@
+import { CommentGateway } from './../socket/comment.gateway';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+
 import { CreateDiscussionreplyDto } from './dto/create-discussionreply.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Discussion } from 'src/discussion/entities/discussion.entity';
@@ -21,6 +23,7 @@ export class DiscussionreplyService {
 
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    private readonly commentGateway: CommentGateway,
   ) {}
   async create(dto: CreateDiscussionreplyDto): Promise<DiscussionReply> {
     const discussion = await this.discussionRepo.findOne({
@@ -36,17 +39,41 @@ export class DiscussionreplyService {
     const reply = this.replyRepo.create({
       message: dto.message,
       discussion,
-      createdBy: user,
+      create_by: { id: user.id },
+    });
+    const savedReply = await this.replyRepo.save(reply);
+
+    this.commentGateway.broadcastNewComment({
+      id: savedReply.id,
+      message: savedReply.message,
+      createdAt: new Date().toISOString(),
+      discussionId: dto.discussionId,
+      create_by: {
+        id: user.id,
+        nama: user.nama,
+      },
     });
 
-    return this.replyRepo.save(reply);
+    return savedReply;
   }
 
-  async findAll(): Promise<DiscussionReply[]> {
-    return this.replyRepo.find({
-      relations: ['discussion', 'createdBy'],
+  async findAll(): Promise<any[]> {
+    const diskusi = await this.replyRepo.find({
+      relations: ['discussion', 'create_by'],
       order: { createdAt: 'DESC' },
     });
+
+    return diskusi.map((diskusi) => ({
+      id: diskusi.id,
+      message: diskusi.message,
+      discussion: {
+        id: diskusi.discussion.id,
+      },
+      create_by: {
+        id: diskusi.create_by.id,
+        nama: diskusi.create_by.nama,
+      },
+    }));
   }
 
   async findByDiscussionId(discussionId: string): Promise<DiscussionReply[]> {
