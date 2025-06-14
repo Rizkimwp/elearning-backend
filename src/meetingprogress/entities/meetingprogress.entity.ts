@@ -6,6 +6,7 @@ import {
   ManyToOne,
   Column,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('meeting_progress')
@@ -17,7 +18,8 @@ export class MeetingProgress {
   meeting: Meeting;
 
   @ManyToOne(() => User)
-  student: User;
+  @JoinColumn({ name: 'id_user' }) // nama kolom di database
+  create_by: User;
 
   @Column({ default: false })
   quizCompleted: boolean;

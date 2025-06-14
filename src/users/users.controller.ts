@@ -47,4 +47,16 @@ export class UsersController {
     const data = await this.usersService.findAll();
     return toResponse(data, 'User Berhasil diambil', true, true);
   }
+
+  @Get('jumlah/siswa')
+  @ApiOperation({ summary: 'Mengambil User' })
+  @ApiResponse({
+    status: 200,
+    description: 'User Berhasil diambil',
+    type: ResponseDto,
+  })
+  async getJumlahSiswa() {
+    const data = await this.usersService.getSiswa();
+    return toResponse(data, 'User Berhasil diambil', true, true);
+  }
 }

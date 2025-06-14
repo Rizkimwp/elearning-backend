@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserRole } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -72,6 +72,18 @@ export class UsersService {
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       throw new Error(`Failed to fetch user: ${error.message}`);
+    }
+  }
+
+  async getSiswa(): Promise<number> {
+    try {
+      const count = await this.userRepository.count({
+        where: { role: 'siswa' as UserRole },
+      });
+      return count;
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      throw new Error(`Failed to fetch siswa count: ${error.message}`);
     }
   }
 }

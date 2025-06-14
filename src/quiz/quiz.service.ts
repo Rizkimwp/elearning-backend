@@ -42,7 +42,7 @@ export class QuizService {
 
   async findAll(): Promise<Quiz[]> {
     return this.quizRepo.find({
-      relations: ['questions', 'meeting'],
+      relations: ['questions', 'meeting', 'questions.quizAnswers.user'],
       order: { title: 'ASC' },
     });
   }

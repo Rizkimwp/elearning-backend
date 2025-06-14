@@ -34,13 +34,14 @@ export class MeetingprogressService {
 
     const progress = this.progressRepo.create({
       meeting,
-      student,
+      create_by: { id: student.id },
       quizCompleted: dto.quizCompleted ?? false,
       moduleRead: dto.moduleRead ?? false,
       videoWatched: dto.videoWatched ?? false,
       participatedInDiscussion: dto.participatedInDiscussion ?? false,
       assignmentUploaded: dto.assignmentUploaded ?? false,
     });
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
 
     return this.progressRepo.save(progress);
   }

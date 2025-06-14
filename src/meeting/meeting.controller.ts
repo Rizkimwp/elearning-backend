@@ -1,4 +1,4 @@
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import {
   Controller,
   Get,
@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Put,
+  Query,
 } from '@nestjs/common';
 import { MeetingService } from './meeting.service';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
@@ -18,12 +19,32 @@ export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
 
   @Get()
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    enum: ['terbaru', 'sudah_lama', 'semua'],
+    description: 'Filter urutan meeting (opsional)',
+  })
+  @ApiQuery({ name: 'title', required: false, type: String })
   @ApiResponse({
     status: 200,
     description: 'Daftar semua meeting berhasil diambil.',
   })
-  async findAll() {
-    const data = await this.meetingService.findAll();
+  async findAll(
+    @Query('filter') filter: 'terbaru' | 'sudah_lama' | 'semua',
+    @Query('title') title,
+  ) {
+    const data = await this.meetingService.findAll(filter, title);
+    return toResponse(data, 'Daftar Meeting berhasil diambil', true, true);
+  }
+
+  @Get('/new')
+  @ApiResponse({
+    status: 200,
+    description: 'Daftar semua meeting berhasil diambil.',
+  })
+  async findNew() {
+    const data = await this.meetingService.findNew();
     return toResponse(data, 'Daftar Meeting berhasil diambil', true, true);
   }
 
@@ -59,5 +80,12 @@ export class MeetingController {
   async remove(@Param('id') id: string) {
     await this.meetingService.remove(id);
     return toResponse(null, 'Meeting berhasil dihapus', true, true);
+  }
+
+  @Get('total/meeting')
+  @ApiResponse({ status: 200, description: 'Detail meeting berhasil diambil.' })
+  async getTotalMeeting() {
+    const data = await this.meetingService.getTotalMeeting();
+    return toResponse(data, 'Detail Meeting berhasil diambil', true, true);
   }
 }

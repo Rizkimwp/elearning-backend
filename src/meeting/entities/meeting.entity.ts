@@ -1,3 +1,4 @@
+import { MeetingProgress } from 'src/meetingprogress/entities/meetingprogress.entity';
 import { Quiz } from 'src/quiz/entities/quiz.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -37,4 +38,7 @@ export class Meeting {
 
   @OneToMany(() => Quiz, (quiz) => quiz.meeting)
   quizzes: Quiz[];
+
+  @OneToMany(() => MeetingProgress, (progress) => progress.meeting)
+  progresses: MeetingProgress[]; // <- Tambahkan ini
 }

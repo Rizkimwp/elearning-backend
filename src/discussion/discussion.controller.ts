@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { DiscussionService } from './discussion.service';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
-import { ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { toResponse } from 'src/helper/response.helper';
 import { ResponseDto } from 'src/users/dto/responst.dto';
 
@@ -10,13 +18,23 @@ export class DiscussionController {
   constructor(private readonly discussionService: DiscussionService) {}
 
   @Get()
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+    enum: ['terbaru', 'sudah_lama', 'semua'],
+    description: 'Filter urutan meeting (opsional)',
+  })
+  @ApiQuery({ name: 'title', required: false, type: String })
   @ApiResponse({
     type: ResponseDto,
     status: 200,
     description: 'Berhasil mengambil semua diskusi.',
   })
-  async findAll() {
-    const data = await this.discussionService.findAll();
+  async findAll(
+    @Query('filter') filter: 'terbaru' | 'sudah_lama' | 'semua',
+    @Query('title') title,
+  ) {
+    const data = await this.discussionService.findAll(filter, title);
     return toResponse(data, 'Daftar diskusi berhasil diambil', true, true);
   }
 

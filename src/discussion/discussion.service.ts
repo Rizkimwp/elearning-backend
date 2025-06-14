@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Discussion } from './entities/discussion.entity';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class DiscussionService {
@@ -45,17 +45,46 @@ export class DiscussionService {
     return this.discussionRepo.save(discussion);
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(
+    filter?: 'terbaru' | 'sudah_lama' | 'semua',
+    title?: string,
+  ): Promise<any[]> {
+    let order: any = {};
+
+    // Menentukan urutan berdasarkan filter
+    switch (filter) {
+      case 'terbaru':
+        order = { createdAt: 'DESC' };
+        break;
+      case 'sudah_lama':
+        order = { createdAt: 'ASC' };
+        break;
+      case 'semua':
+      default:
+        order = {}; // Tidak ada pengurutan jika 'semua'
+        break;
+    }
+
+    const where: any = {};
+    if (title) {
+      // Menambahkan kondisi pencarian berdasarkan 'title' menggunakan ILike untuk pencarian case-insensitive
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      where.title = ILike(`%${title}%`);
+    }
+    console.log(title);
     const diskusi = await this.discussionRepo.find({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      where,
       relations: [
         'meeting',
         'discussionReplies',
         'discussionReplies.create_by',
       ],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       order: {
-        createdAt: 'ASC', // Order diskusi
+        ...order, // Menambahkan urutan berdasarkan filter
         discussionReplies: {
-          createdAt: 'ASC', // Order balasan di dalam diskusi
+          createdAt: 'ASC', // Mengurutkan balasan dalam diskusi
         },
       },
     });

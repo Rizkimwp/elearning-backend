@@ -1,5 +1,12 @@
 import { Quiz } from 'src/quiz/entities/quiz.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { QuizAnswer } from 'src/quizanswers/entities/quizanswer.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 
 @Entity('quiz_question')
 export class QuizQuestion {
@@ -17,4 +24,7 @@ export class QuizQuestion {
 
   @ManyToOne(() => Quiz, (quiz) => quiz.questions)
   quiz: Quiz;
+
+  @OneToMany(() => QuizAnswer, (answer) => answer.quizQuestion)
+  quizAnswers: QuizAnswer[];
 }

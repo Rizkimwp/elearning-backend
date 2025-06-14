@@ -36,7 +36,7 @@ export class QuizquestionService {
   }
 
   async findAll(): Promise<QuizQuestion[]> {
-    return this.questionRepo.find({ relations: ['quiz'] });
+    return this.questionRepo.find({ relations: ['quiz', 'quizAnswers'] });
   }
 
   async findOne(id: string): Promise<QuizQuestion> {

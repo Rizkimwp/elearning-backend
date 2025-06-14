@@ -14,6 +14,7 @@ import { AssignmentModule } from './assignment/assignment.module';
 import { MeetingprogressModule } from './meetingprogress/meetingprogress.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { QuizanswersModule } from './quizanswers/quizanswers.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { join } from 'path';
     DiscussionModule,
     DiscussionreplyModule,
     MeetingprogressModule,
+    QuizanswersModule,
   ],
 })
 export class AppModule {}
