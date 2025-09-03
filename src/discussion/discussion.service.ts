@@ -165,7 +165,10 @@ export class DiscussionService {
   }
 
   async remove(id: string): Promise<void> {
-    const discussion = await this.findOne(id);
+    const discussion = await this.discussionRepo.findOne({ where: { id } });
+    if (!discussion) {
+      throw new NotFoundException('Discussion tidak ditemukan');
+    }
     await this.discussionRepo.remove(discussion);
   }
 }

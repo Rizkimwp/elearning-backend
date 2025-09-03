@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { ApiResponse, ApiBody } from '@nestjs/swagger';
 import { toResponse } from 'src/helper/response.helper';
+import { UpdateQuizDto } from './dto/update-quiz.dto';
 
 @Controller('quiz')
 export class QuizController {
@@ -35,5 +44,13 @@ export class QuizController {
   async remove(@Param('id') id: string) {
     await this.quizService.remove(id);
     return toResponse(null, 'Quiz berhasil dihapus', true, true);
+  }
+
+  @Put(':id')
+  @ApiBody({ type: UpdateQuizDto })
+  @ApiResponse({ status: 200, description: 'Quiz berhasil diperbarui' })
+  async update(@Param('id') id: string, @Body() dto: UpdateQuizDto) {
+    const data = await this.quizService.update(id, dto);
+    return toResponse(data, 'Quiz berhasil diperbarui', true, true);
   }
 }
