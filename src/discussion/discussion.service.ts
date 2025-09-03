@@ -10,6 +10,7 @@ import { Discussion } from './entities/discussion.entity';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
 import { User } from 'src/users/entities/user.entity';
 import { ILike, Repository } from 'typeorm';
+import { UpdateDiscussionDto } from './dto/update-discussion.dto';
 
 @Injectable()
 export class DiscussionService {
@@ -41,6 +42,48 @@ export class DiscussionService {
       meeting,
       create_by: user,
     });
+
+    return this.discussionRepo.save(discussion);
+  }
+
+  async update(
+    id: string,
+    dto: UpdateDiscussionDto, // DTO bisa mirip CreateDiscussionDto tapi semua field optional
+  ): Promise<Discussion> {
+    // Cari discussion lama
+    const discussion = await this.discussionRepo.findOne({
+      where: { id },
+      relations: ['meeting', 'create_by'],
+    });
+    if (!discussion) {
+      throw new NotFoundException('Discussion tidak ditemukan');
+    }
+
+    // Update meeting jika ada
+    if (dto.meetingId) {
+      const meeting = await this.meetingRepo.findOne({
+        where: { id: dto.meetingId },
+      });
+      if (!meeting) throw new BadRequestException('Meeting tidak ditemukan');
+      discussion.meeting = meeting;
+    }
+
+    // Update user jika ada (opsional)
+    if (dto.createdById) {
+      const user = await this.userRepo.findOne({
+        where: { id: dto.createdById },
+      });
+      if (!user) throw new BadRequestException('User tidak ditemukan');
+      discussion.create_by = user;
+    }
+
+    // Update title & content jika ada
+    if (dto.title) {
+      discussion.title = dto.title;
+    }
+    if (dto.content) {
+      discussion.content = dto.content;
+    }
 
     return this.discussionRepo.save(discussion);
   }

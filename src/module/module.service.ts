@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Meeting } from 'src/meeting/entities/meeting.entity';
@@ -86,13 +87,32 @@ export class ModuleService {
   }
 
   async update(id: string, dto: UpdateModuleDto): Promise<Module> {
-    const material = await this.findOne(id);
+    const material = await this.modulRepo.findOne({
+      where: { id },
+      relations: ['create_by', 'meeting'], // wajib sesuai entity
+    });
+
+    if (!material) throw new NotFoundException('Module not found');
+
+    if (dto.create_by) {
+      const user = await this.userRepo.findOne({
+        where: { id: dto.create_by },
+      });
+      if (!user) throw new NotFoundException('User not found');
+      material.create_by = user;
+    }
+
+    delete (dto as any).create_by;
     Object.assign(material, dto);
+
     return this.modulRepo.save(material);
   }
 
   async remove(id: string): Promise<void> {
-    const material = await this.findOne(id);
-    await this.modulRepo.remove(material);
+    const material = await this.modulRepo.findOne({ where: { id } });
+    if (!material) {
+      throw new NotFoundException('Module not found');
+    }
+    await this.modulRepo.delete(id); // gunakan ID langsung
   }
 }

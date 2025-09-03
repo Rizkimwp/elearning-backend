@@ -7,6 +7,7 @@ import {
   Delete,
   UploadedFile,
   UseInterceptors,
+  Put,
 } from '@nestjs/common';
 import { VideomaterialService } from './videomaterial.service';
 import { CreateVideomaterialDto } from './dto/create-videomaterial.dto';
@@ -20,6 +21,7 @@ import {
 import { toResponse } from 'src/helper/response.helper';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { UpdateVideomaterialDto } from './dto/update-videomaterial.dto';
 
 @Controller('videomaterial')
 export class VideomaterialController {
@@ -61,6 +63,45 @@ export class VideomaterialController {
   ) {
     const data = await this.service.create(dto, file);
     return toResponse(data, 'Video Materi Berhasil Disimpan', true, true);
+  }
+
+  @ApiOperation({ summary: 'Update materi modul dengan file video' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Form data untuk update file video materi',
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Judul Materi Baru' },
+        meetingId: { type: 'string', example: 'uuid-meeting' },
+        uploadedById: { type: 'string', example: 'uuid-uploader' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['title', 'meetingId'], // uploadedById opsional jika uploader tidak berubah
+    },
+  })
+  @Put(':id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = `${Date.now()}-${file.originalname}`;
+          cb(null, uniqueName);
+        },
+      }),
+    }),
+  )
+  async update(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UpdateVideomaterialDto,
+  ) {
+    const data = await this.service.update(id, dto, file); // panggil service update
+    return toResponse(data, 'Video Materi Berhasil Diperbarui', true, true);
   }
 
   @Get()

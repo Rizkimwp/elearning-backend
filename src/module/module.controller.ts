@@ -96,9 +96,42 @@ export class ModuleController {
   }
 
   @Put(':id')
-  @ApiBody({ type: UpdateModuleDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Form data untuk update modul',
+    schema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', example: 'Judul Materi' },
+        content: { type: 'string', example: 'Konten modul' },
+        meetingId: { type: 'string', example: 'uuid-meeting' },
+        file: { type: 'string', format: 'binary' },
+        // Jangan masukkan create_by di sini
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Materi berhasil diperbarui.' })
-  async update(@Param('id') id: string, @Body() dto: UpdateModuleDto) {
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads',
+        filename: (req, file, cb) => {
+          const filename = `${Date.now()}-${file.originalname}`;
+          cb(null, filename);
+        },
+      }),
+    }),
+  )
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateModuleDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    // jika ada file baru, tambahkan ke DTO
+    if (file) {
+      dto.fileUrl = `/uploads/${file.filename}`;
+    }
+
     const data = await this.moduleService.update(id, dto);
     return toResponse(data, 'Materi berhasil diperbarui', true, true);
   }

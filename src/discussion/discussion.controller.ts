@@ -6,12 +6,14 @@ import {
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 import { DiscussionService } from './discussion.service';
 import { CreateDiscussionDto } from './dto/create-discussion.dto';
 import { ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { toResponse } from 'src/helper/response.helper';
 import { ResponseDto } from 'src/users/dto/responst.dto';
+import { UpdateDiscussionDto } from './dto/update-discussion.dto';
 
 @Controller('discussion')
 export class DiscussionController {
@@ -59,6 +61,18 @@ export class DiscussionController {
   async create(@Body() dto: CreateDiscussionDto) {
     const data = await this.discussionService.create(dto);
     return toResponse(data, 'Diskusi berhasil dibuat', true, true);
+  }
+
+  @Put(':id')
+  @ApiBody({ type: UpdateDiscussionDto })
+  @ApiResponse({
+    type: ResponseDto,
+    status: 200,
+    description: 'Diskusi berhasil diperbarui.',
+  })
+  async update(@Param('id') id: string, @Body() dto: UpdateDiscussionDto) {
+    const data = await this.discussionService.update(id, dto);
+    return toResponse(data, 'Diskusi berhasil diperbarui', true, true);
   }
 
   @Delete(':id')

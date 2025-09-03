@@ -10,6 +10,7 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { VideoMaterial } from './entities/videomaterial.entity';
 import { extname } from 'path';
+import { UpdateVideomaterialDto } from './dto/update-videomaterial.dto';
 @Injectable()
 export class VideomaterialService {
   constructor(
@@ -82,6 +83,56 @@ export class VideomaterialService {
         order: vidio.meeting.order,
       },
     }));
+  }
+
+  async update(
+    id: string,
+    dto: UpdateVideomaterialDto,
+    file?: Express.Multer.File, // file opsional untuk update
+  ): Promise<VideoMaterial> {
+    // Cari video lama
+    const video = await this.videoRepo.findOne({
+      where: { id },
+      relations: ['meeting', 'create_by'],
+    });
+    if (!video) throw new NotFoundException('Video tidak ditemukan');
+
+    // Jika ada file baru, lakukan validasi
+    if (file) {
+      const allowedExtensions = ['.mp4', '.mov', '.avi', '.mkv'];
+      const fileExt = extname(file.originalname).toLowerCase();
+
+      if (!allowedExtensions.includes(fileExt)) {
+        throw new BadRequestException(`Format file tidak didukung: ${fileExt}`);
+      }
+
+      const maxSizeInBytes = 100 * 1024 * 1024; // 100MB
+      if (file.size > maxSizeInBytes) {
+        throw new BadRequestException('Ukuran file melebihi 100MB');
+      }
+
+      // Update path file baru
+      video.videoUrl = `/uploads/${file.filename}`;
+    }
+
+    // Update title jika ada
+    if (dto.title) {
+      video.title = dto.title;
+    }
+
+    // Update meeting jika ada
+    if (dto.meetingId) {
+      const meeting = await this.meetingRepo.findOne({
+        where: { id: dto.meetingId },
+      });
+      if (!meeting) throw new BadRequestException('Meeting tidak ditemukan');
+      video.meeting = meeting;
+    }
+
+    // Bisa tambahkan update uploader jika perlu
+    // video.create_by tetap uploader lama biasanya
+
+    return this.videoRepo.save(video);
   }
 
   async findOne(id: string): Promise<VideoMaterial> {
