@@ -101,6 +101,9 @@ export class QuizService {
     if (!quiz) {
       throw new NotFoundException('Discussion tidak ditemukan');
     }
+
+    // Hapus semua question yang refer ke quiz ini
+    await this.questionRepo.delete({ quiz: { id } });
     await this.quizRepo.remove(quiz);
   }
 }

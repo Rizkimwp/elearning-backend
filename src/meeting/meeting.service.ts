@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Meeting } from './entities/meeting.entity';
 import { ILike, Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { MeetingProgress } from 'src/meetingprogress/entities/meetingprogress.entity';
 
 @Injectable()
 export class MeetingService {
@@ -13,6 +14,8 @@ export class MeetingService {
     private readonly meetingRepository: Repository<Meeting>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(MeetingProgress)
+    private readonly meetingProgressRepository: Repository<MeetingProgress>,
   ) {}
 
   async findAll(
@@ -101,6 +104,11 @@ export class MeetingService {
 
   async remove(id: string): Promise<void> {
     const meeting = await this.findOne(id);
+
+    // Hapus dulu semua meeting_progress yang refer ke meeting ini
+    await this.meetingProgressRepository.delete({ meeting: { id } });
+
+    // Baru hapus meeting
     await this.meetingRepository.remove(meeting);
   }
 
